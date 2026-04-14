@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+      - DB_HOST=db
+      - DB_USER=staginguser
+      - DB_PASSWORD=stagingpassword
+      - DB_NAME=stagingdb
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: staginguser
+      POSTGRES_PASSWORD: stagingpassword
+      POSTGRES_DB: stagingdb
+    volumes:
+      - pgdata_staging:/var/lib/postgresql/data
+
+volumes:
+  pgdata_staging:

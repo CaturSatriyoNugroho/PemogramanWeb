@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+      - DB_HOST=db
+      - DB_USER=produser
+      - DB_PASSWORD=prodpassword
+      - DB_NAME=proddb
+      - GIN_MODE=release
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: produser
+      POSTGRES_PASSWORD: prodpassword
+      POSTGRES_DB: proddb
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata_prod:
